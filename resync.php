@@ -67,6 +67,7 @@ if ($domains_result) {
             'notified_serial' => $row['serial']
         );
         $records[] = array(
+            'ispconfig_id' => 0,
             'domain_id' => $row['id'],
             'name' => $domain,
             'type' => 'SOA',
