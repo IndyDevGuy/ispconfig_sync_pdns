@@ -72,25 +72,30 @@ try {
 /**
  * create connection to ispconfig database
  */
+echo "Connecting to the ISPConfig Database..... \n";
 $dbsrc = new mysqli($_ENV['SRC_HOST'], $_ENV['SRC_USER'], $_ENV['SRC_PASSWORD'], $_ENV['SRC_DATABASE']);
 if ($dbsrc->connect_error) {
     die('(ISPConfig) DB Source Connect Error (' . $dbsrc->connect_errno . ') ' . $dbsrc->connect_error);
 }
+echo "Connected! \n";
 
 /**
  * create connection to powerdns database
  */
+echo "Connecting to the PowerDSN Database..... \n";
 $dbdst = new mysqli($_ENV['PDNS_HOST'], $_ENV['PDNS_USER'], $_ENV['PDNS_PASSWORD'], $_ENV['PDNS_DATABASE']);
 if ($dbdst->connect_error) {
     die('(PowerDNS) DB Destination Connect Error (' . $dbdst->connect_errno . ') ' . $dbdst->connect_error);
 }
+echo "Connected! \n";
 
+echo "Deleting old ISPConfig records from PowerDNS DB... \n";
 // delete old records from powerdns database
 $sql = 'DELETE FROM `records` WHERE `ispconfig_id` IS NOT NULL';
 if ($dbdst->query($sql) === TRUE) {
-    echo "Record deleted successfully \n";
+    echo "Old records deleted successfully! \n";
 } else {
-    echo "Error deleting record: " . $dbdst->error;
+    die("Error deleting record: " . $dbdst->error);
 }
 
 
@@ -100,9 +105,11 @@ $records = array();
 /**
  * select SOA records from dns_soa table (ispconfig)
  */
+echo "Getting domains from ISPConfig Database.... \n";
 $domains_result = $dbsrc->query('SELECT * FROM `dns_soa` ORDER BY `id`', MYSQLI_USE_RESULT);
 
 if ($domains_result) {
+    echo "There are ".count($domains_result->fetch_all()). " domain results! \n";
     while ($row = $domains_result->fetch_assoc()) {
         $domain = substr($row['origin'], -1) === '.' ? substr($row['origin'], 0, -1) : $row['origin'];
         $email = substr($row['mbox'], -1) === '.' ? substr($row['mbox'], 0, -1) : $row['mbox'];
@@ -127,14 +134,18 @@ if ($domains_result) {
         // printf("%s %s\n", $row['id'], $domain);
     }
     $domains_result->free();
+} else {
+    echo "There are no domain results! \n";
 }
 
 /**
  * select all records from dns_rr table (ispconfig)
  */
+echo "Getting records from ISPConfig Database.... \n";
 $records_result = $dbsrc->query('SELECT * FROM `dns_rr` ORDER BY `id`', MYSQLI_USE_RESULT);
 
 if ($records_result) {
+    echo "There are ".count($records_result->fetch_all()). " record results! \n";
     while ($row = $records_result->fetch_assoc()) {
         $domain = substr($row['name'], -1) === '.' ? substr($row['name'], 0, -1) : $row['name'];
         $content = substr($row['data'], -1) === '.' ? substr($row['data'], 0, -1) : $row['data'];
@@ -156,11 +167,14 @@ if ($records_result) {
         // printf("%s %s\n", $row['zone'], $domain);
     }
     $records_result->free();
+} else {
+    echo "There are no record results! \n";
 }
 
 $dbdst->begin_transaction();
 
 if (count($domains) > 0) {
+    echo "Adding ISPConfig domains to PowerDNS Database.... \n";
     foreach ($domains as &$domain) {
         //
         $dsql = 'INSERT INTO `domains` '
@@ -178,6 +192,7 @@ if (count($domains) > 0) {
 }
 
 if (count($records) > 0) {
+    echo "Adding ISPConfig records to PowerDNS Database.... \n";
     foreach ($records as &$record) {
         if ($record['ispconfig_id'] == null) {
             $record['ispconfig_id'] = 1;
@@ -206,10 +221,7 @@ if (count($records) > 0) {
     }
 }
 
-// print_r($domains);
-// print_r($records);
-
 $dbdst->commit();
-
 $dbsrc->close();
 $dbdst->close();
+echo "Sync finished successfully! \n";
