@@ -12,20 +12,66 @@
  * @link          http://www.gordejev.lv/
  * @source        http://code.google.com/p/ag-php-classes/wiki/ImagesHelper
  */
-$srcHost = '';
-$srcUser = '';
-$srcPass = '';
-$srcBase = '';
 
-$dstHost = 'localhost';
-$dstUser = 'powerdns';
-$dstPass = 'PDNSPASSWORD';
-$dstBase = 'powerdns';
+function setupEnvironmentVars()
+{
+    $env_file_path = realpath(__DIR__ . "/.env");
+    //Check .envenvironment file exists
+    if (!is_file($env_file_path)) {
+        throw new ErrorException("Environment File is Missing.");
+    }
+    //Check .envenvironment file is readable
+    if (!is_readable($env_file_path)) {
+        throw new ErrorException("Permission Denied for reading the " . ($env_file_path) . ".");
+    }
+    //Check .envenvironment file is writable
+    if (!is_writable($env_file_path)) {
+        throw new ErrorException("Permission Denied for writing on the " . ($env_file_path) . ".");
+    }
+
+    $var_arrs = array();
+    // Open the .en file using the reading mode
+    $fopen = fopen($env_file_path, 'r');
+    if ($fopen) {
+        //Loop the lines of the file
+        while (($line = fgets($fopen)) !== false) {
+            // Check if line is a comment
+            $line_is_comment = (substr(trim($line), 0, 1) == '#') ? true : false;
+            // If line is a comment or empty, then skip
+            if ($line_is_comment || empty(trim($line)))
+                continue;
+
+            // Split the line variable and succeeding comment on line if exists
+            $line_no_comment = explode("#", $line, 2)[0];
+            // Split the variable name and value
+            $env_ex = preg_split('/(\s?)\=(\s?)/', $line_no_comment);
+            $env_name = trim($env_ex[0]);
+            $env_value = isset($env_ex[1]) ? trim($env_ex[1]) : "";
+            $var_arrs[$env_name] = $env_value;
+        }
+        // Close the file
+        fclose($fopen);
+    }
+    foreach ($var_arrs as $name => $value) {
+        //Using putenv()
+        //putenv("{$name}={$value}");
+        //Or, using $_ENV
+        $_ENV[$name] = $value;
+        // Or you can use both
+    }
+}
+
+try {
+    setupEnvironmentVars();
+} catch (ErrorException $e) {
+    echo $e->getMessage();
+    die;
+}
 
 /**
  * create connection to ispconfig database
  */
-$dbsrc = new mysqli($srcHost, $srcUser, $srcPass, $srcBase);
+$dbsrc = new mysqli($_ENV['SRC_HOST'], $_ENV['SRC_USER'], $_ENV['SRC_PASSWORD'], $_ENV['SRC_DATABASE']);
 if ($dbsrc->connect_error) {
     die('(ISPConfig) DB Source Connect Error (' . $dbsrc->connect_errno . ') ' . $dbsrc->connect_error);
 }
@@ -33,7 +79,7 @@ if ($dbsrc->connect_error) {
 /**
  * create connection to powerdns database
  */
-$dbdst = new mysqli($dstHost, $dstUser, $dstPass, $dstBase);
+$dbdst = new mysqli($_ENV['PDNS_HOST'], $_ENV['PDNS_USER'], $_ENV['PDNS_PASSWORD'], $_ENV['PDNS_DATABASE']);
 if ($dbdst->connect_error) {
     die('(PowerDNS) DB Destination Connect Error (' . $dbdst->connect_errno . ') ' . $dbdst->connect_error);
 }
@@ -43,7 +89,7 @@ $sql = 'DELETE FROM `records` WHERE `ispconfig_id` IS NOT NULL';
 if ($dbdst->query($sql) === TRUE) {
     echo "Record deleted successfully";
 } else {
-    echo "Error deleting record: " . $conn->error;
+    echo "Error deleting record: " . $dbdst->error;
 }
 
 
