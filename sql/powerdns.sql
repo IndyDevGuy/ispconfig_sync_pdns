@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `domains` (
 DROP TABLE IF EXISTS `records`;
 CREATE TABLE IF NOT EXISTS `records` (
   `id` int(11) NOT NULL,
+  `ispconfig_id` int(11) DEFAULT NULL,
   `domain_id` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `type` varchar(10) DEFAULT NULL,
@@ -72,6 +73,7 @@ CREATE TABLE IF NOT EXISTS `records` (
   `disabled` tinyint(1) DEFAULT '0',
   `ordername` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin DEFAULT NULL,
   `auth` tinyint(1) DEFAULT '1'
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

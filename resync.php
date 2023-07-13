@@ -38,6 +38,15 @@ if ($dbdst->connect_error) {
     die('(PowerDNS) DB Destination Connect Error (' . $dbdst->connect_errno . ') ' . $dbdst->connect_error);
 }
 
+// delete old records from powerdns database
+$sql = 'DELETE FROM `records` WHERE `ispconfig_id` IS NOT NULL';
+if ($dbdst->query($sql) === TRUE) {
+    echo "Record deleted successfully";
+} else {
+    echo "Error deleting record: " . $conn->error;
+}
+
+
 $domains = array();
 $records = array();
 
@@ -86,6 +95,7 @@ if ($records_result) {
             $domain .= '.' . $parent['name'];
         }
         $records[] = array(
+            'ispconfig_id' => $row['id'],
             'domain_id' => $row['zone'],
             'name' => $domain,
             'type' => $row['type'],
@@ -123,8 +133,8 @@ if (count($records) > 0) {
     foreach ($records as &$record) {
         //
         $dsql = 'INSERT INTO `records` '
-            . ' (`domain_id`, `name`, `type`, `content`, `ttl`, `prio`, `change_date`, `disabled`, `auth`) VALUES '
-            . ' (' . $record['domain_id'] . ',"' . $record['name'] . '","' . $record['type']
+            . ' (`ispconfig_id`, `domain_id`, `name`, `type`, `content`, `ttl`, `prio`, `change_date`, `disabled`, `auth`) VALUES '
+            . ' (' . $record['ispconfig_id'] . ',"' . $record['domain_id'] . ',"' . $record['name'] . '","' . $record['type']
             . '","' . $record['content'] . '", ' . $record['ttl'] . ', ' . $record['prio']
             . ', NOW(),' . $record['disabled'] . ',' . $record['auth'] . ' ) '
             . ' ON DUPLICATE KEY UPDATE '

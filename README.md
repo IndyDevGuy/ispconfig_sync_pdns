@@ -35,7 +35,7 @@ Install the PowerDNS
 Clone script
 ```
   $ cd /opt
-  $ git clone https://github.com/biggora/ispconfig_sync_pdns.git
+  $ git clone https://github.com/IndyDevGuy/ispconfig_sync_pdns.git
   $ cd ispconfig_sync_pdns
 ```
 Configure MariaDB
