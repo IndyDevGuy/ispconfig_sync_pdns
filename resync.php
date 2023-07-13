@@ -109,7 +109,7 @@ echo "Getting domains from ISPConfig Database.... \n";
 $domains_result = $dbsrc->query('SELECT * FROM `dns_soa` ORDER BY `id`', MYSQLI_USE_RESULT);
 
 if ($domains_result) {
-    echo "There are ".count($domains_result->fetch_all()). " domain results! \n";
+    echo "There are ".$domains_result->num_rows . " domain results! \n";
     while ($row = $domains_result->fetch_assoc()) {
         $domain = substr($row['origin'], -1) === '.' ? substr($row['origin'], 0, -1) : $row['origin'];
         $email = substr($row['mbox'], -1) === '.' ? substr($row['mbox'], 0, -1) : $row['mbox'];
@@ -145,7 +145,7 @@ echo "Getting records from ISPConfig Database.... \n";
 $records_result = $dbsrc->query('SELECT * FROM `dns_rr` ORDER BY `id`', MYSQLI_USE_RESULT);
 
 if ($records_result) {
-    echo "There are ".count($records_result->fetch_all()). " record results! \n";
+    echo "There are ".$records_result->num_rows. " record results! \n";
     while ($row = $records_result->fetch_assoc()) {
         $domain = substr($row['name'], -1) === '.' ? substr($row['name'], 0, -1) : $row['name'];
         $content = substr($row['data'], -1) === '.' ? substr($row['data'], 0, -1) : $row['data'];
