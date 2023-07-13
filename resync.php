@@ -63,6 +63,7 @@ function setupEnvironmentVars()
 
 try {
     setupEnvironmentVars();
+    echo "Environment Variables loaded successfully \n";
 } catch (ErrorException $e) {
     echo $e->getMessage();
     die;
@@ -87,7 +88,7 @@ if ($dbdst->connect_error) {
 // delete old records from powerdns database
 $sql = 'DELETE FROM `records` WHERE `ispconfig_id` IS NOT NULL';
 if ($dbdst->query($sql) === TRUE) {
-    echo "Record deleted successfully";
+    echo "Record deleted successfully \n";
 } else {
     echo "Error deleting record: " . $dbdst->error;
 }
@@ -113,7 +114,7 @@ if ($domains_result) {
             'notified_serial' => $row['serial']
         );
         $records[] = array(
-            'ispconfig_id' => 0,
+            'ispconfig_id' => 1,
             'domain_id' => $row['id'],
             'name' => $domain,
             'type' => 'SOA',
