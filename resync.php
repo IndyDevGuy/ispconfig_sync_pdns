@@ -189,7 +189,6 @@ if (count($records) > 0) {
             . '","' . $record['content'] . '", ' . $record['ttl'] . ', ' . $record['prio']
             . ', NOW(),' . $record['disabled'] . ',' . $record['auth'] . ' ) '
             . ' ON DUPLICATE KEY UPDATE '
-            . ' `ispconfig_id` = ' . $record['ispconfig_id'] . ','
             . ' `domain_id` = ' . $record['domain_id'] . ','
             . ' `name` = "' . $record['name'] . '",'
             . ' `type` = "' . $record['type'] . '",'
