@@ -185,7 +185,7 @@ if (count($records) > 0) {
         //
         $dsql = 'INSERT INTO `records` '
             . ' (`ispconfig_id`, `domain_id`, `name`, `type`, `content`, `ttl`, `prio`, `change_date`, `disabled`, `auth`) VALUES '
-            . ' ("' . $record['ispconfig_id'] . '","' . $record['domain_id'] . ',"' . $record['name'] . '","' . $record['type']
+            . ' (' . $record['ispconfig_id'] . ',' . $record['domain_id'] . ',"' . $record['name'] . '","' . $record['type']
             . '","' . $record['content'] . '", ' . $record['ttl'] . ', ' . $record['prio']
             . ', NOW(),' . $record['disabled'] . ',' . $record['auth'] . ' ) '
             . ' ON DUPLICATE KEY UPDATE '
