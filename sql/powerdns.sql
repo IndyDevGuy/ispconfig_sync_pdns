@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS `records` (
   `disabled` tinyint(1) DEFAULT '0',
   `ordername` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin DEFAULT NULL,
   `auth` tinyint(1) DEFAULT '1'
-  PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
