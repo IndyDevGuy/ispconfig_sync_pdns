@@ -179,6 +179,9 @@ if (count($domains) > 0) {
 
 if (count($records) > 0) {
     foreach ($records as &$record) {
+        if ($record['ispconfig_id'] == null) {
+            $record['ispconfig_id'] = 1;
+        }
         //
         $dsql = 'INSERT INTO `records` '
             . ' (`ispconfig_id`, `domain_id`, `name`, `type`, `content`, `ttl`, `prio`, `change_date`, `disabled`, `auth`) VALUES '
